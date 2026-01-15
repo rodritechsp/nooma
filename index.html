@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-br">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+    <title>Nooma - Frequências de Cura</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&family=Noto+Sans:wght@400;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    screens: {
+                        'xs': '375px',
+                        'sm': '640px',
+                        'md': '768px',
+                        'lg': '1024px',
+                        'xl': '1280px',
+                    },
+                    colors: {
+                        "primary": "#8ee1d2",
+                        "primary-dark": "#7accc0",
+                        "primary-dim": "rgba(142, 225, 210, 0.1)",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#0c1318",
+                        "surface-dark": "#1A2D3C",
+                        "surface-darker": "#14232E",
+                        "text-muted": "#8BA2B5",
+                        "text-light": "#E0E8ED",
+                        "card-dark": "#151f25",
+                        "surface-glass": "rgba(26, 45, 60, 0.4)",
+                        "active-card": "#132328",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"]
+                    },
+                    fontSize: {
+                        'xs': ['0.75rem', { lineHeight: '1rem' }],
+                        'sm': ['0.875rem', { lineHeight: '1.25rem' }],
+                        'base': ['1rem', { lineHeight: '1.5rem' }],
+                        'lg': ['1.125rem', { lineHeight: '1.75rem' }],
+                        'xl': ['1.25rem', { lineHeight: '1.75rem' }],
+                        '2xl': ['1.5rem', { lineHeight: '2rem' }],
+                        '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
+                        '4xl': ['2.25rem', { lineHeight: '2.5rem' }],
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "2xl": "2rem",
+                        "full": "9999px"
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                        'nebula-gradient': 'radial-gradient(circle at 50% 0%, #1c3a40 0%, #0C1318 60%)',
+                        'card-gradient': 'linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)',
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    spacing: {
+                        '18': '4.5rem',
+                        '88': '22rem',
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .glass-panel {
+            background: rgba(26, 45, 60, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(142, 225, 210, 0.1);
+        }
+
+        .glass-nav {
+            background: rgba(12, 19, 24, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .active-nav-glow {
+            box-shadow: 0 0 12px rgba(142, 225, 210, 0.3);
+        }
+
+        .waveform-bar {
+            width: 4px;
+            border-radius: 9999px;
+            transition: height 0.2s ease;
+        }
+
+        @media (min-width: 640px) {
+            .waveform-bar {
+                width: 6px;
+            }
+        }
+
+        .glow-button {
+            box-shadow: 0 0 35px rgba(142, 225, 210, 0.35);
+        }
+
+        .glow-active {
+            animation: pulse-soft 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse-soft {
+
+            0%,
+            100% {
+                box-shadow: 0 0 15px rgba(142, 225, 210, 0.1);
+            }
+
+            50% {
+                box-shadow: 0 0 25px rgba(142, 225, 210, 0.25);
+            }
+        }
+
+        /* Touch target minimum size enforcement */
+        .touch-target {
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        /* Scroll indicators for horizontal scrolling */
+        .scroll-fade-left::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 40px;
+            background: linear-gradient(to right, rgba(12, 19, 24, 1), transparent);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .scroll-fade-right::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 40px;
+            background: linear-gradient(to left, rgba(12, 19, 24, 1), transparent);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        body {
+            min-height: max(884px, 100dvh);
+            background-color: #0c1318;
+            overscroll-behavior: none;
+        }
+
+        /* Responsive container max-widths */
+        @media (min-width: 1024px) {
+            .responsive-container {
+                max-width: 48rem;
+            }
+        }
+    </style>
+    <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.12.0"
+  }
+}
+</script>
+    <link rel="stylesheet" href="/index.css">
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display min-h-screen flex flex-col overflow-hidden relative selection:bg-primary selection:text-background-dark">
+    <div id="root" class="h-full w-full flex flex-col"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+
+</html>

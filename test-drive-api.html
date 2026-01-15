@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Drive API Test</title>
+    <style>
+        body {
+            font-family: monospace;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #00ff00;
+        }
+
+        h1 {
+            color: #8ee1d2;
+        }
+
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .success {
+            background: #1a4d2e;
+            border: 1px solid #00ff00;
+        }
+
+        .error {
+            background: #4d1a1a;
+            border: 1px solid #ff0000;
+            color: #ff6b6b;
+        }
+
+        .info {
+            background: #1a3a4d;
+            border: 1px solid #4a9eff;
+            color: #4a9eff;
+        }
+
+        pre {
+            background: #0d0d0d;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+
+        button {
+            background: #8ee1d2;
+            color: #0c1318;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: #7accc0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔍 Google Drive API - Teste de Configuração</h1>
+
+    <div id="config-info" class="status info">
+        <h3>Configuração Atual:</h3>
+        <p><strong>API Key:</strong> <span id="api-key"></span></p>
+        <p><strong>Folder ID:</strong> <span id="folder-id"></span></p>
+    </div>
+
+    <div>
+        <button onclick="testRootFolder()">1. Testar Acesso à Pasta Raiz</button>
+        <button onclick="testSubfolders()">2. Listar Subpastas (Categorias)</button>
+        <button onclick="testFullStructure()">3. Estrutura Completa</button>
+        <button onclick="clearResults()">Limpar</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        const API_KEY = 'AIzaSyD0n7hOKbEXHCApOF5IcD4572dHHqVPSeM';
+        const ROOT_FOLDER_ID = '1eA8sGvcCQyUfEHsxyqJ892lLWHnqbUAj';
+        const BASE_URL = 'https://www.googleapis.com/drive/v3/files';
+
+        document.getElementById('api-key').textContent = API_KEY.substring(0, 20) + '...';
+        document.getElementById('folder-id').textContent = ROOT_FOLDER_ID;
+
+        function addResult(title, content, isError = false) {
+            const div = document.createElement('div');
+            div.className = `status ${isError ? 'error' : 'success'}`;
+            div.innerHTML = `<h3>${title}</h3><pre>${JSON.stringify(content, null, 2)}</pre>`;
+            document.getElementById('results').appendChild(div);
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function testRootFolder() {
+            try {
+                const url = `${BASE_URL}/${ROOT_FOLDER_ID}?key=${API_KEY}&fields=id,name,mimeType,capabilities`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (response.ok) {
+                    addResult('✅ Pasta Raiz Acessível', data);
+                } else {
+                    addResult('❌ Erro ao Acessar Pasta Raiz', data, true);
+                }
+            } catch (error) {
+                addResult('❌ Erro de Rede', { error: error.message }, true);
+            }
+        }
+
+        async function testSubfolders() {
+            try {
+                const query = `'${ROOT_FOLDER_ID}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`;
+                const url = `${BASE_URL}?q=${encodeURIComponent(query)}&key=${API_KEY}&fields=files(id,name,mimeType)&pageSize=100`;
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (response.ok) {
+                    const folders = data.files || [];
+                    addResult(`✅ Subpastas Encontradas (${folders.length})`, folders);
+                } else {
+                    addResult('❌ Erro ao Listar Subpastas', data, true);
+                }
+            } catch (error) {
+                addResult('❌ Erro de Rede', { error: error.message }, true);
+            }
+        }
+
+        async function testFullStructure() {
+            try {
+                // 1. Get subfolders
+                const foldersQuery = `'${ROOT_FOLDER_ID}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`;
+                const foldersUrl = `${BASE_URL}?q=${encodeURIComponent(foldersQuery)}&key=${API_KEY}&fields=files(id,name,mimeType)&pageSize=100`;
+
+                const foldersResponse = await fetch(foldersUrl);
+                const foldersData = await foldersResponse.json();
+
+                if (!foldersResponse.ok) {
+                    addResult('❌ Erro ao Listar Pastas', foldersData, true);
+                    return;
+                }
+
+                const folders = foldersData.files || [];
+                const structure = {};
+
+                // 2. For each folder, get audio files
+                for (const folder of folders) {
+                    const audioQuery = `'${folder.id}' in parents and (mimeType contains 'audio/' or name contains '.mp3') and trashed = false`;
+                    const audioUrl = `${BASE_URL}?q=${encodeURIComponent(audioQuery)}&key=${API_KEY}&fields=files(id,name,mimeType)&pageSize=20`;
+
+                    const audioResponse = await fetch(audioUrl);
+                    const audioData = await audioResponse.json();
+
+                    structure[folder.name] = {
+                        folderId: folder.id,
+                        files: audioData.files || []
+                    };
+                }
+
+                addResult('✅ Estrutura Completa', structure);
+            } catch (error) {
+                addResult('❌ Erro ao Montar Estrutura', { error: error.message }, true);
+            }
+        }
+
+        // Auto-run on load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                testRootFolder();
+            }, 500);
+        });
+    </script>
+</body>
+
+</html>
